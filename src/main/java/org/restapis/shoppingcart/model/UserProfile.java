@@ -39,10 +39,17 @@ public class UserProfile {
     @Column
     private String gender;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "account_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Account account;
+
     public UserProfile(Long id, String descr, String number, String gender) {
         this.id = id;
         this.descr = descr;
         this.number = number;
         this.gender = gender;
     }
+
 }

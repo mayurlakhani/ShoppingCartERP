@@ -4,12 +4,16 @@ package org.restapis.shoppingcart.services;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.restapis.shoppingcart.dto.AccountDto;
 import org.restapis.shoppingcart.dto.UserDto;
 import org.restapis.shoppingcart.dto.UserProfileDto;
+import org.restapis.shoppingcart.mapper.AccountMapper;
 import org.restapis.shoppingcart.mapper.UserMapper;
 import org.restapis.shoppingcart.mapper.UserProfileMapper;
+import org.restapis.shoppingcart.model.Account;
 import org.restapis.shoppingcart.model.User;
 import org.restapis.shoppingcart.model.UserProfile;
+import org.restapis.shoppingcart.repository.AccountRepository;
 import org.restapis.shoppingcart.repository.UserProfileRepository;
 import org.restapis.shoppingcart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +26,21 @@ import java.util.Optional;
 @Slf4j
 @Transactional
 @RequiredArgsConstructor
-public class UserServiceImpl {
+public class UserServiceImpl implements UserService{
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserProfileRepository userProfileRepository;
 
 
     @Autowired
-    private UserProfileRepository userProfileRepository;
+    private AccountRepository accountRepository;
+
     public UserDto createUser(UserDto userDto) {
         log.info("USerDto::"+userDto);
 
-       /*User user = User.builder().username(userDto.getUsername())
+       /* User user = User.builder().username(userDto.getUsername())
                 .password(userDto.getPassword())
                 .email(userDto.getPassword())
                 .build();*/
@@ -72,6 +79,30 @@ public class UserServiceImpl {
         usr.stream().forEach(i -> { savedUserProfile.setUser(i);});
         return savedUserProfile;
     }
+
+    @Override
+    public AccountDto createAccount(AccountDto accountDto, Long id) throws IllegalAccessException{
+        log.info("accountDto::"+accountDto);
+        Account account = AccountMapper.mapToAccount(accountDto);
+        log.info("account obj::"+account);
+        // find user object by name
+        UserProfile usr = (UserProfile) userProfileRepository.findUserByUserName(id);
+        log.info("user::"+ usr.getId());
+        if(usr == null){
+            throw new IllegalAccessException();
+        }
+        else {
+            usr.setAccount(account);
+            userProfileRepository.save(usr);// set the userprofile to each user by name
+        }
+
+        // save userprofile
+        accountRepository.save(account);
+
+        AccountDto accountDto1 = AccountMapper.mapToAccountDto(account);
+        return accountDto1;
+    }
+
     public UserDto getUserById(Long userId) {
         Optional<User> user =  userRepository.findById(userId);
         User respuser = user.get();
@@ -96,4 +127,6 @@ public class UserServiceImpl {
     public List<User> getAllPosts() {
         return userRepository.findAll();
     }
+
+
 }

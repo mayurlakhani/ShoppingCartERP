@@ -2,8 +2,10 @@ package org.restapis.shoppingcart.controller;
 
 
 import org.modelmapper.ModelMapper;
+import org.restapis.shoppingcart.dto.AccountDto;
 import org.restapis.shoppingcart.dto.UserDto;
 import org.restapis.shoppingcart.dto.UserProfileDto;
+import org.restapis.shoppingcart.services.UserService;
 import org.restapis.shoppingcart.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +23,7 @@ public class UserController {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
-    private UserServiceImpl userservice;
+    private UserService userservice;
 
     @PostMapping("/")
     public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
@@ -39,6 +41,12 @@ public class UserController {
     public ResponseEntity<UserProfileDto> createUserProfile(@RequestBody UserProfileDto userProfile, @RequestParam String username) throws IllegalAccessException {
         UserProfileDto userprofile =  userservice.createUserProfile(userProfile, username);
         return new ResponseEntity<>(userprofile, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/account")
+    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto, @RequestParam Long id) throws IllegalAccessException {
+        AccountDto accountDtoResponse =  userservice.createAccount(accountDto, id);
+        return new ResponseEntity<>(accountDtoResponse, HttpStatus.CREATED);
     }
     @GetMapping("{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long userId){

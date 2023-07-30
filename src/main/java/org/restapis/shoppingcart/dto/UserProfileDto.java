@@ -3,6 +3,7 @@ package org.restapis.shoppingcart.dto;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.restapis.shoppingcart.model.Account;
 import org.restapis.shoppingcart.model.User;
 
 
@@ -20,6 +21,8 @@ public class UserProfileDto {
     private String gender;
 
     private User user;
+
+    private Account account;
 
     public UserProfileDto(Long id, String descr, String number, String gender) {
         this.id = id;

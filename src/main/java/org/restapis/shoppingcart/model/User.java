@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class User {
+public class User  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)

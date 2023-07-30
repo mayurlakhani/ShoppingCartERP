@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.restapis.shoppingcart.dto.AccountDto;
 import org.restapis.shoppingcart.dto.UserDto;
 import org.restapis.shoppingcart.dto.UserProfileDto;
+import org.restapis.shoppingcart.exception.ResourceNotFoundException;
 import org.restapis.shoppingcart.mapper.AccountMapper;
 import org.restapis.shoppingcart.mapper.UserMapper;
 import org.restapis.shoppingcart.mapper.UserProfileMapper;
@@ -17,6 +18,8 @@ import org.restapis.shoppingcart.repository.AccountRepository;
 import org.restapis.shoppingcart.repository.UserProfileRepository;
 import org.restapis.shoppingcart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -101,6 +104,53 @@ public class UserServiceImpl implements UserService{
 
         AccountDto accountDto1 = AccountMapper.mapToAccountDto(account);
         return accountDto1;
+    }
+
+    @Override
+    public UserProfileDto addUserProfile(long userId, UserProfileDto userProfileDto) {
+        UserProfile userProfile = UserProfileMapper.mapToUserProfile(userProfileDto);
+        Optional<User> user = userRepository.findById(userId);
+       // User update = user.get();
+        userProfile.setUser(user.get());
+        userProfileRepository.save(userProfile);
+        UserProfileDto response = UserProfileMapper.mapToUserProfileDto(userProfile);
+        response.setUser(user.get());
+        return response;
+    }
+
+    @Override
+    public Page<UserProfile> findByUserId(Long userId, Pageable pageable) {
+        return userProfileRepository.findByUserId(userId, pageable);
+
+    }
+
+    @Override
+    public UserProfileDto updateUserProfile(long userId, long profileId, UserProfileDto userProfileDto) {
+        UserProfile userProfile = UserProfileMapper.mapToUserProfile(userProfileDto);
+        userProfile.setId(profileId);
+        if(!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("userId " + userId + " not found");
+        }
+
+        Optional<Account> account = accountRepository.findById(userId);
+        Optional<User> user = userRepository.findById(userId);
+        Optional<UserProfile> usrProfile = userProfileRepository.findById(profileId);
+        usrProfile.get().setId(profileId);
+        usrProfile.get().setDescr(userProfile.getDescr());
+        usrProfile.get().setNumber(userProfile.getNumber());
+        usrProfile.get().setGender(userProfile.getGender());
+        usrProfile.get().setAccount(account.get());
+        usrProfile.get().setUser(user.get());
+        UserProfileDto response = UserProfileMapper.mapToUserProfileDto(userProfile);
+        //response.setId(profileId);
+        response.setUser(user.get());
+        return response;
+    }
+
+    @Override
+    public void findByUserIdAndId(Long userId, Long id) {
+        UserProfile userProfile =userProfileRepository.findByIdAndUserId(userId, id);
+        userProfileRepository.delete(userProfile);
     }
 
     public UserDto getUserById(Long userId) {

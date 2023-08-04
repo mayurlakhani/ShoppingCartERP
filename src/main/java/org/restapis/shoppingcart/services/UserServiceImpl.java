@@ -40,6 +40,10 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private AccountRepository accountRepository;
 
+    public List<User> getAllPosts() {
+        return userRepository.findAll();
+    }
+
     public UserDto createUser(UserDto userDto) {
         log.info("USerDto::"+userDto);
 
@@ -56,6 +60,24 @@ public class UserServiceImpl implements UserService{
         userDtoResponse.setUsername(userDto.getUsername());
         userDtoResponse.setEmail(userDto.getEmail());*/
         return savedUserDto;
+    }
+
+    public UserDto getUserById(Long userId) {
+        Optional<User> user =  userRepository.findById(userId);
+        User respuser = user.get();
+        return UserMapper.mapToUserDto(respuser);
+    }
+
+    public UserDto updateUser(UserDto user) {
+        User existingUser = userRepository.findById(user.getId()).get();
+        existingUser.setUsername(user.getUsername());
+        existingUser.setPassword(user.getPassword());
+        existingUser.setEmail(user.getEmail());
+        User updatedUser = userRepository.save(existingUser);
+        return UserMapper.mapToUserDto(updatedUser);
+    }
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 
     public UserProfileDto createUserProfile(UserProfileDto userProfile, String username) throws IllegalAccessException {
@@ -84,29 +106,6 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public AccountDto createAccount(AccountDto accountDto, Long id) throws IllegalAccessException{
-        log.info("accountDto::"+accountDto);
-        Account account = AccountMapper.mapToAccount(accountDto);
-        log.info("account obj::"+account);
-        // find user object by name
-        UserProfile usr = (UserProfile) userProfileRepository.findUserByUserName(id);
-        log.info("user::"+ usr.getId());
-        if(usr == null){
-            throw new IllegalAccessException();
-        }
-        else {
-            usr.setAccount(account);
-            userProfileRepository.save(usr);// set the userprofile to each user by name
-        }
-
-        // save userprofile
-        accountRepository.save(account);
-
-        AccountDto accountDto1 = AccountMapper.mapToAccountDto(account);
-        return accountDto1;
-    }
-
-    @Override
     public UserProfileDto addUserProfile(long userId, UserProfileDto userProfileDto) {
         UserProfile userProfile = UserProfileMapper.mapToUserProfile(userProfileDto);
         Optional<User> user = userRepository.findById(userId);
@@ -119,7 +118,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Page<UserProfile> findByUserId(Long userId, Pageable pageable) {
+    public Page<UserProfile> getAllUserProfileByUserId(Long userId, Pageable pageable) {
         return userProfileRepository.findByUserId(userId, pageable);
 
     }
@@ -148,35 +147,32 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void findByUserIdAndId(Long userId, Long id) {
+    public void deleteUserProfile(Long userId, Long id) {
         UserProfile userProfile =userProfileRepository.findByIdAndUserId(userId, id);
         userProfileRepository.delete(userProfile);
     }
 
-    public UserDto getUserById(Long userId) {
-        Optional<User> user =  userRepository.findById(userId);
-        User respuser = user.get();
-        return UserMapper.mapToUserDto(respuser);
+    @Override
+    public AccountDto createAccount(AccountDto accountDto, Long id) throws IllegalAccessException{
+        log.info("accountDto::"+ accountDto);
+        Account account = AccountMapper.mapToAccount(accountDto);
+        log.info("account obj::"+ account);
+        // find user object by name
+        UserProfile usr = (UserProfile) userProfileRepository.findUserByUserName(id);
+        log.info("user::"+ usr.getId());
+        if(usr == null){
+            throw new IllegalAccessException();
+        }
+        else {
+            usr.setAccount(account);
+            userProfileRepository.save(usr);// set the userprofile to each user by name
+        }
+        // save userprofile
+        accountRepository.save(account);
+
+        AccountDto accountDto1 = AccountMapper.mapToAccountDto(account);
+        return accountDto1;
     }
-
-    public UserDto updateUser(UserDto user) {
-        User existingUser = userRepository.findById(user.getId()).get();
-        existingUser.setUsername(user.getUsername());
-        existingUser.setPassword(user.getPassword());
-        existingUser.setEmail(user.getEmail());
-        User updatedUser = userRepository.save(existingUser);
-        return UserMapper.mapToUserDto(updatedUser);
-    }
-
-    public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
-    }
-
-
-
-    public List<User> getAllPosts() {
-        return userRepository.findAll();
-    }
-
+    
 
 }

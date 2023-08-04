@@ -23,9 +23,9 @@ public interface UserService {
 
     UserProfileDto addUserProfile(long userId, UserProfileDto userProfileDto);
 
-    Page<UserProfile> findByUserId(Long userId, Pageable pageable);
+    Page<UserProfile> getAllUserProfileByUserId(Long userId, Pageable pageable);
 
     UserProfileDto updateUserProfile(long userId, long profileId, UserProfileDto userProfileDto);
 
-    void findByUserIdAndId(Long userId, Long id);
+    void deleteUserProfile(Long userId, Long id);
 }

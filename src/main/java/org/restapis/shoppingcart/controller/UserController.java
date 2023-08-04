@@ -74,23 +74,23 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{userId}/profile/{id}")
-    public ResponseEntity<String> deleteComment(@PathVariable (value = "userId") Long userId,
+    public ResponseEntity<String> deleteUserProfile(@PathVariable (value = "userId") Long userId,
                                            @PathVariable (value = "id") Long id) {
-         userservice.findByUserIdAndId(userId, id);
+         userservice.deleteUserProfile(userId, id);
         return new ResponseEntity<>("profile deleted successfully", HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/profile")
     public Page<UserProfile> getAllUserProfileByUserId(@PathVariable(value = "userId") Long userId,
                                                        Pageable pageable) {
-         return userservice.findByUserId(userId, pageable);
+         return userservice.getAllUserProfileByUserId(userId, pageable);
     }
 
-    @PostMapping("/profile")
+   /* @PostMapping("/profile")
     public ResponseEntity<UserProfileDto> createUserProfile(@RequestBody UserProfileDto userProfile, @RequestParam String username) throws IllegalAccessException {
         UserProfileDto userprofile =  userservice.createUserProfile(userProfile, username);
         return new ResponseEntity<>(userprofile, HttpStatus.CREATED);
-    }
+    }*/
 
     @PostMapping("/account")
     public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto, @RequestParam Long id) throws IllegalAccessException {

@@ -1,4 +1,4 @@
-package org.restapis.shoppingcart.services.jwt;
+package org.restapis.shoppingcart.security.jwt;
 import java.io.IOException;
 
 import jakarta.servlet.FilterChain;

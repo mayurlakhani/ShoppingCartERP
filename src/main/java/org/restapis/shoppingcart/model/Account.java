@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "Account")
 @AllArgsConstructor
@@ -23,13 +25,20 @@ public class Account{
     private String bankName;
 
     private String password;
+    private BigDecimal balance;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "vault_id", nullable = false)
+    private Vault vault;
 
-    public Account(String iban, String bic, String accountHolderName, String bankName, String password) {
-
+    public Account(Long id, String iban, String bic, String accountHolderName, String bankName,  BigDecimal balance, String password) {
+        this.id =id;
         this.IBAN = iban;
         this.BIC = bic;
         this.accountHolderName = accountHolderName;
         this.bankName = bankName;
+        this.balance = balance;
         this.password = password;
     }
+
+
 }

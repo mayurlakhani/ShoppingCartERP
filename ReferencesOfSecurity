@@ -1,0 +1,28 @@
+## JWT Auth Security
+=====================
+https://blog.softtek.com/en/token-based-api-authentication-with-spring-and-jwt
+
+
+
+## SpringBoot OAuth2 Authorization, Authentication
+===================================================
+1. Resource Owner – The user of the application.
+2. Client – the application (user is using) which require access to user data on the resource server.
+3. Resource Server – store user’s data and http services which can return user data to authenticated clients.
+4. Authorization Server – responsible for authenticating user’s identity and gives an authorization token. This token is accepted by resource server and validate your identity.
+
+
+## For change password, verify user by sending email link and oauth2 code
+===============================================================
+https://github.com/shabbirdwd53/spring-security-tutorial/
+
+
+
+## For checking oauth2 + jwt authentication
+============================================
+https://www.pixeltrice.com/spring-boot-security-using-oauth2-with-jwt/
+
+
+## For Junit + Mockito  service, db and controller layer testing
+================================================================
+https://github.com/thinkconstructive/rest-api-spring-boot-demo/tree/master

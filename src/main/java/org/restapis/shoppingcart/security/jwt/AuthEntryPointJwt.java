@@ -1,4 +1,4 @@
-package org.restapis.shoppingcart.services.jwt;
+package org.restapis.shoppingcart.security.jwt;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

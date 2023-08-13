@@ -11,25 +11,26 @@ import org.restapis.shoppingcart.exception.ResourceNotFoundException;
 import org.restapis.shoppingcart.mapper.AccountMapper;
 import org.restapis.shoppingcart.mapper.UserMapper;
 import org.restapis.shoppingcart.mapper.UserProfileMapper;
-import org.restapis.shoppingcart.model.Account;
-import org.restapis.shoppingcart.model.User;
-import org.restapis.shoppingcart.model.UserProfile;
-import org.restapis.shoppingcart.repository.AccountRepository;
-import org.restapis.shoppingcart.repository.UserProfileRepository;
-import org.restapis.shoppingcart.repository.UserRepository;
+import org.restapis.shoppingcart.model.*;
+import org.restapis.shoppingcart.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
+    private final VerificationTokenRepository verificationTokenRepository;
+    private final VaultRepository vaultRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -158,13 +159,19 @@ public class UserServiceImpl implements UserService{
         Account account = AccountMapper.mapToAccount(accountDto);
         log.info("account obj::"+ account);
         // find user object by name
-        UserProfile usr = (UserProfile) userProfileRepository.findUserByUserName(id);
+        UserProfile usr = (UserProfile) userProfileRepository.findUserByUserId(id);
         log.info("user::"+ usr.getId());
+
+        Vault vault = Vault.builder()
+                .credit(BigDecimal.ZERO)
+                .account(account)
+                .build();
         if(usr == null){
             throw new IllegalAccessException();
         }
         else {
             usr.setAccount(account);
+            vaultRepository.save(vault);
             userProfileRepository.save(usr);// set the userprofile to each user by name
         }
         // save userprofile
@@ -173,6 +180,62 @@ public class UserServiceImpl implements UserService{
         AccountDto accountDto1 = AccountMapper.mapToAccountDto(account);
         return accountDto1;
     }
-    
 
+    public BigDecimal deposit(String iban, BigDecimal amount) {
+        Account account = accountRepository.findByIBAN(iban);
+        BigDecimal currentBalance = account.getBalance();
+        BigDecimal newBalance = currentBalance.add(amount);
+        account.setBalance(newBalance);
+        accountRepository.save(account);
+        return newBalance;
+    }
+
+    public BigDecimal withdraw(String iban, BigDecimal amount) {
+        Account account = accountRepository.findByIBAN(iban);
+        BigDecimal currentBalance = account.getBalance();
+        BigDecimal newBalance = currentBalance.subtract(amount);
+        account.setBalance(newBalance);
+        accountRepository.save(account);
+        return newBalance;
+    }
+
+    public void saveJwtToken(String token, User user) {
+        VerificationToken verificationToken = new VerificationToken(user, token);
+        verificationTokenRepository.save(verificationToken);
+    }
+
+    public String validateVerificationToken(String token) {
+        VerificationToken verificationToken= verificationTokenRepository.findByToken(token);
+        if(verificationToken ==null){
+            return "invalid";
+        }
+        User user = verificationToken.getUser();
+        Calendar cal = Calendar.getInstance();
+        if ((verificationToken.getExpirationTime().getTime()
+                - cal.getTime().getTime()) <= 0) {
+            verificationTokenRepository.delete(verificationToken);
+            return "expired";
+        }
+        //user enabled
+        //user.setEnabled();
+        //userRepository.save(user); // save boolean activated value
+        return "valid";
+    }
+
+    public VerificationToken generateNewVerificationToken(String oldToken) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(oldToken);
+        verificationToken.setToken(UUID.randomUUID().toString());
+        verificationTokenRepository.save(verificationToken);
+        return verificationToken;
+    }
+
+    public User findUserByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        return user;
+    }
+
+    public void createPasswordResetTokenForUser(User user, String token) {
+        VerificationToken verificationToken = new VerificationToken(user, token);
+        verificationTokenRepository.save(verificationToken);
+    }
 }

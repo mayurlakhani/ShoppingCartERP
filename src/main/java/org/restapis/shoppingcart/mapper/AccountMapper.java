@@ -8,14 +8,14 @@ public class AccountMapper {
     public static AccountDto mapToAccountDto(Account account){
 
         AccountDto accountDto = new AccountDto(
-                account.getId(),account.getIBAN(), account.getBIC(), account.getAccountHolderName(), account.getBankName(), account.getPassword());
+                account.getId(),account.getIBAN(), account.getBIC(), account.getAccountHolderName(), account.getBankName(),account.getBalance() ,account.getPassword(), account.getVault());
         return accountDto;
     }
 
     public static Account mapToAccount(AccountDto accountDto){
 
         Account account = new Account(
-                accountDto.getId(), accountDto.getIBAN(), accountDto.getBIC(), accountDto.getAccountHolderName(), accountDto.getBankName(), accountDto.getPassword());
+                accountDto.getId(), accountDto.getIBAN(), accountDto.getBIC(), accountDto.getAccountHolderName(), accountDto.getBankName(), accountDto.getPassword(), accountDto.getBalance(),accountDto.getVault());
         return account;
     }
 
